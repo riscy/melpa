@@ -1,4 +1,5 @@
-name: melpazoid
+
+name: check-recipe
 on:
   pull_request:
 
@@ -7,19 +8,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    # - name: Set up Python 3.6
-    #   uses: actions/setup-python@v1
-    #   with: { python-version: 3.6 }
-    # - name: Install
-    #   run: |
-    #     python -m pip install --upgrade pip
-    #     sudo apt-get install emacs && emacs --version
-    #     git clone https://github.com/riscy/melpazoid.git --branch develop ~/melpazoid
-    #     pip install ~/melpazoid
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v1
+      with: { python-version: 3.6 }
+    - name: Install
+      run: |
+        python -m pip install --upgrade pip
+        sudo apt-get install emacs && emacs --version
+        git clone https://github.com/riscy/melpazoid.git --branch develop ~/melpazoid
+        pip install ~/melpazoid
     - name: Run
       run: |
         RECIPES=$(\
           curl --silent https://api.github.com/repos/riscy/melpa/pulls/${{ github.event.pull_request.number }}/files \
-          | python -c 'import json, sys; print("\n".join([item["filename"] for item in json.load(sys.stdin) if item["filename"].startswith("recipes/")]))'\
+          | python -c 'import json, os, sys; print("\n".join([os.path.abspath(item["filename"]) for item in json.load(sys.stdin) if item["filename"].startswith("recipes/")]))'\
         )
-        for recipe in ${RECIPES}; do echo ${recipe}; done
+        for recipe in ${RECIPES}; do RECIPE_FILE=${recipe} make -C ~/melpazoid; done
