@@ -17,7 +17,9 @@ jobs:
     #     git clone https://github.com/riscy/melpazoid.git --branch develop ~/melpazoid
     #     pip install ~/melpazoid
     - name: Run
-      env:
       run: |
-        RECIPES=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})
-        echo $RECIPES
+        RECIPES=$(\
+          curl --silent https://api.github.com/repos/riscy/melpa/pulls/${{ github.event.pull_request.number }}/files \
+          | python -c 'import json, sys; print("\n".join([item["filename"] for item in json.load(sys.stdin) if item["filename"].startswith("recipes/")]))'\
+        )
+        for recipe in ${RECIPES}; do echo ${recipe}; done
