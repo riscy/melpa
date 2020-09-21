@@ -1,2 +1,1 @@
-(bifocal :repo "riscy/bifocal-mode"
-         :fetcher github)
+(bifocal :repo "riscy/bifocal-mode" :fetcher github)
