@@ -1,7 +1,10 @@
-
-name: check-recipe
+name: recipes-pr
 on:
   pull_request:
+    paths:
+    - 'recipes/*'
+  issue_comment:
+    types: [created]
 
 jobs:
   build:
