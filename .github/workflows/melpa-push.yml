@@ -13,7 +13,6 @@ jobs:
       with: { python-version: 3.6 }
     - name: Install dependencies
       run: |
-        sudo apt-get update
         sudo apt-get install emacs25
         sudo apt-get install git mercurial texinfo
 
@@ -26,7 +25,7 @@ jobs:
     - name: Run cask
       run: |
         ~/.cask/bin/cask
-    - name: Check recipes
+    - name: Check changed recipes
       run: |
         [ "$GITHUB_EVENT_NAME" = "push" ] \
           && export CHANGED_FILES=$(git diff-tree --name-only --no-commit-id -r ${{ github.sha }})
