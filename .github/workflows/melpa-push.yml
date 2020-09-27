@@ -23,10 +23,9 @@ jobs:
 
         # Use cask to install development dependencies
         curl -fsSkL https://raw.github.com/cask/cask/master/go | python
-        echo "::add-path::$/HOME/.cask/bin"
     - name: Run cask
       run: |
-        cask
+        ~/.cask/bin/cask
     - name: Check recipes
       run: |
         [ "$GITHUB_EVENT_NAME" = "push" ] \
