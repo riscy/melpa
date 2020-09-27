@@ -1,0 +1,43 @@
+name: melpa-push
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v1
+      with: { python-version: 3.6 }
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install emacs
+        sudo apt-get install git mercurial texinfo
+
+        # Use cask to install development dependencies
+        curl -fsSkL https://raw.github.com/cask/cask/master/go | python
+
+        # Work around SSL-related failures, see
+        # https://stackoverflow.com/questions/21477683/mercurial-https-clone-abort-error-wrong-version-number
+        echo "[ui]\ntls = False" > $HOME/.hgrc
+    - name: Run cask
+      run: |
+        export PATH=$HOME/.cask/bin:$PATH
+        cask
+    - name: Check recipes
+      run: |
+        env
+        
+        [ "$GITHUB_EVENT_NAME" = "push" ] \
+          && export CHANGED_FILES=$(git diff-tree --name-only --no-commit-id -r ${{ github.sha }})
+
+        [ "$GITHUB_EVENT_NAME" = "pull_request" ] \
+          && export CHANGED_FILES=$(\
+            curl --silent https://api.github.com/repos/"$GITHUB_REPOSITORY"/pulls/${{ github.event.pull_request.number }}/files \
+              | python -c 'import json, sys; [print(it["filename"]) for it in json.load(sys.stdin)]')
+
+        export PATH=$HOME/.cask/bin:$PATH
+        ./run-travis-ci.sh
