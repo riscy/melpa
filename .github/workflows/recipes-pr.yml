@@ -3,9 +3,6 @@ on:
   pull_request:
     paths:
     - 'recipes/*'
-  issue_comment:
-    types: [created]
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,11 +15,11 @@ jobs:
       run: |
         sudo apt-get install emacs && emacs --version
         git clone https://github.com/riscy/melpazoid.git --branch develop ~/melpazoid
-        pip install ~/melpazoid
+        pip install -r ~/melpazoid/requirements.txt
     - name: Run
       run: |
         RECIPES=$(\
           curl --silent https://api.github.com/repos/riscy/melpa/pulls/${{ github.event.pull_request.number }}/files \
-          | python -c 'import json, os, sys; print("\n".join([os.path.abspath(item["filename"]) for item in json.load(sys.stdin) if item["filename"].startswith("recipes/")]))'\
+          | python -c 'import json, sys; print("\n".join([item["filename"] for item in json.load(sys.stdin) if item["filename"].startswith("recipes/")]))'\
         )
-        for recipe in ${RECIPES}; do RECIPE_FILE=${recipe} make -C ~/melpazoid; done
+        for recipe in ${RECIPES}; do RECIPE_FILE=${PWD}/${recipe} make -C ~/melpazoid; done
