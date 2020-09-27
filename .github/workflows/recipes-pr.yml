@@ -15,7 +15,7 @@ jobs:
       run: |
         sudo apt-get install emacs && emacs --version
         git clone https://github.com/riscy/melpazoid.git --branch develop ~/melpazoid
-        pip install ~/melpazoid/requirements.txt
+        pip install -r ~/melpazoid/requirements.txt
     - name: Run
       run: |
         RECIPES=$(\
